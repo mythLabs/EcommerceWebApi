@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
+using EcommerceWebApi.Entity;
+using System.Data.Entity;
 
 namespace EcommerceWebApi.Models
 {
@@ -21,9 +23,11 @@ namespace EcommerceWebApi.Models
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext()
-            : base("DefaultConnection", throwIfV1Schema: false)
+            : base("EcommerceDB", throwIfV1Schema: false)
         {
         }
+
+        public IDbSet<User> User { get; set; }
         
         public static ApplicationDbContext Create()
         {
