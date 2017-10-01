@@ -20,12 +20,12 @@ namespace EcommerceWebApi.Controllers
         // GET: api/Users
         public IQueryable<User> GetUsers()
         {
-            return db.User;
+            return db.User.Where(x=>x.isDeleted == false);
         }
 
         // GET: api/Users/5
-        [ResponseType(typeof(User))]
-        public IHttpActionResult GetUser(int id)
+        [HttpGet]
+        public IHttpActionResult getUserById(int id)
         {
             User user = db.User.Find(id);
             if (user == null)
@@ -39,30 +39,41 @@ namespace EcommerceWebApi.Controllers
         [HttpGet]
         public IHttpActionResult getUserforauthentication(string username,string password)
         {
-            User user = db.User.Where(x => x.Username == username && x.Password == password).FirstOrDefault();
+            User user = db.User.Where(x => x.Username == username && x.Password == password && x.isDeleted == false).FirstOrDefault();
             if (user == null)
             {
-                return Ok("0");
+                return NotFound();
             }
 
             return Ok(user);
         }
 
         // PUT: api/Users/5
-        [ResponseType(typeof(void))]
-        public IHttpActionResult PutUser(int id, User user)
+        [Route("api/updateUser")]
+        [HttpPost]
+        public IHttpActionResult updateUser(User user)
         {
+            User oldUser = db.User.Where(x => x.UserId == user.UserId).FirstOrDefault();
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (id != user.UserId)
+            if (user.UserId != oldUser.UserId)
             {
                 return BadRequest();
             }
 
-            db.Entry(user).State = EntityState.Modified;
+            //db.Entry(user).State = EntityState.Modified;
+            oldUser.Username = user.Username;
+            oldUser.profileImageName = user.profileImageName;
+            oldUser.PhoneNumber = user.PhoneNumber;
+            oldUser.Password = user.Password;
+            oldUser.LastName = user.LastName;
+            oldUser.FirstName = user.FirstName;
+            oldUser.Country = user.Country;
+            oldUser.City = user.City;
+            db.SaveChanges();
 
             try
             {
@@ -70,7 +81,7 @@ namespace EcommerceWebApi.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UserExists(id))
+                if (!UserExists(user.UserId))
                 {
                     return NotFound();
                 }
@@ -83,19 +94,35 @@ namespace EcommerceWebApi.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // POST: api/Users
-        [ResponseType(typeof(User))]
-        public IHttpActionResult PostUser(User user)
+        [Route("api/saveUser")]
+        [HttpPost]
+        public IHttpActionResult saveUser(User user)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
+            user.isDeleted = false;
             db.User.Add(user);
             db.SaveChanges();
 
             return CreatedAtRoute("DefaultApi", new { id = user.UserId }, user);
+        }
+
+        [Route("api/deleteUser")]
+        [HttpGet]
+        public IHttpActionResult deleteUser(int id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            db.User.Where(x => x.UserId == id).FirstOrDefault().isDeleted = true;
+            db.SaveChanges();
+
+            return Ok(0);
         }
 
         // DELETE: api/Users/5
