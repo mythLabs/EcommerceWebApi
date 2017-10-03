@@ -20,4 +20,9 @@ namespace EcommerceWebApi.Entity
         public string Password { get; set; }
         public bool? isDeleted {get; set; }
     }
+
+    public class File
+    {
+        public string filename { get; set; }
+    }
 }

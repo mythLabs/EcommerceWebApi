@@ -10,6 +10,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using EcommerceWebApi.Entity;
 using EcommerceWebApi.Models;
+using System.Web;
 
 namespace EcommerceWebApi.Controllers
 {
@@ -139,6 +140,28 @@ namespace EcommerceWebApi.Controllers
             db.SaveChanges();
 
             return Ok(user);
+        }
+
+        [Route("api/uploadFile")]
+        [HttpPost]
+        public IHttpActionResult uploadFile()
+        {
+            HttpResponseMessage response = new HttpResponseMessage();
+            var httpRequest = HttpContext.Current.Request;
+
+            File LocalFile = new File();
+            if (httpRequest.Files.Count > 0)
+            {
+                foreach(string file in httpRequest.Files)
+                {
+                    var postedFile = httpRequest.Files[file];
+                    var filePath = HttpContext.Current.Server.MapPath("~/ProfileImage/" + postedFile.FileName);
+                    postedFile.SaveAs(filePath);
+                    LocalFile.filename = postedFile.FileName;
+                }
+            }
+
+            return Ok(LocalFile);
         }
 
         protected override void Dispose(bool disposing)
