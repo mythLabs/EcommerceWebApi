@@ -28,7 +28,9 @@ namespace EcommerceWebApi.Models
         }
 
         public IDbSet<User> User { get; set; }
-        
+        public IDbSet<Product> Product { get; set; }
+        public IDbSet<Category> Category { get; set; }
+
         public static ApplicationDbContext Create()
         {
             return new ApplicationDbContext();
